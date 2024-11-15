@@ -1,0 +1,44 @@
+image: node:16
+
+pipelines:
+  default:
+    - step:
+        name: Lint Helm Charts
+        image: alpine/helm:3.12.0
+        script:
+          - apk add --no-cache git
+          - helm lint charts/*
+
+  branches:
+    main:
+      - step:
+          name: Release Charts to Artifactory
+          image: node:16
+          caches:
+            - node
+          script:
+            - apk add --no-cache bash git curl jq
+            # Install Helm
+            - curl -fsSL -o /usr/local/bin/helm https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz
+            - chmod +x /usr/local/bin/helm
+
+            # Install Auto
+            - npm install --global auto
+            - auto version
+            - auto changelog
+
+            # Authenticate with Artifactory
+            - echo $HELM_REPO_PASSWORD | helm repo add artifactory https://$ARTIFACTORY_URL --username $HELM_REPO_USERNAME --password -
+
+            # Package and Push Charts
+            - for chart in charts/*; do
+                helm package $chart -d ./charts-packaged;
+                helm push ./charts-packaged/*.tgz artifactory;
+              done
+
+          services:
+            - docker
+
+definitions:
+  caches:
+    node: ~/.npm

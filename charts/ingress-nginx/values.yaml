@@ -1,0 +1,11 @@
+controller:
+  replicaCount: 2
+  service:
+    type: ClusterIP
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi

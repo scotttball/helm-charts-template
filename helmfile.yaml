@@ -1,0 +1,26 @@
+repositories:
+  - name: ingress-nginx
+    url: https://kubernetes.github.io/ingress-nginx
+  - name: jetstack
+    url: https://charts.jetstack.io
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
+
+releases:
+  - name: ingress-nginx
+    namespace: ingress
+    chart: ingress-nginx/ingress-nginx
+    values:
+      - ./env/dev.yaml
+
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    values:
+      - ./env/dev.yaml
+
+  - name: prometheus-stack
+    namespace: monitoring
+    chart: prometheus-community/kube-prometheus-stack
+    values:
+      - ./env/dev.yaml
